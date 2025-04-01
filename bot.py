@@ -1,7 +1,12 @@
 import logging
 import requests
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
+async def start(update: Update, context: CallbackContext) -> None:
+await update.message.reply_text("Привет! Я помогу выбрать героя для Dota 2 по текущей мете.\n"
+                                    "Введите команду /hero, чтобы получить героя для своей линии.")
+async def hero(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text("Для какой линии вам нужно выбрать героя? Напишите 'top', 'mid' или 'bot'.")
 
 # Включаем логирование
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -74,17 +79,19 @@ def get_counterpick(update: Update, context: CallbackContext) -> None:
     else:
         update.message.reply_text(f"Извините, у меня нет информации о контрпиках для {opponent_hero}.")
 
+# Функция для получения меты и другие обработчики
+
 def main() -> None:
     token = 'YOUR_BOT_API_TOKEN'  # Токен для бота
-    updater = Updater(token)
-    dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("hero", hero))
-    dispatcher.add_handler(CommandHandler("counterpick", counterpick))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, line))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, get_counterpick))
-    updater.start_polling()
-    updater.idle()
+    application = Application.builder().token(token).build()
+
+    # Добавляем обработчики команд
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("hero", hero))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hero))
+
+    # Запускаем бота
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
