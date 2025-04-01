@@ -2,11 +2,6 @@ import logging
 import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
-async def start(update: Update, context: CallbackContext) -> None:
-await update.message.reply_text("Привет! Я помогу выбрать героя для Dota 2 по текущей мете.\n"
-                                    "Введите команду /hero, чтобы получить героя для своей линии.")
-async def hero(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text("Для какой линии вам нужно выбрать героя? Напишите 'top', 'mid' или 'bot'.")
 
 # Включаем логирование
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -20,6 +15,16 @@ headers = {
     "Authorization": f"Bearer {STRATZ_API_KEY}"
 }
 
+# Асинхронная функция старта
+async def start(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text("Привет! Я помогу выбрать героя для Dota 2 по текущей мете.\n"
+                                    "Введите команду /hero, чтобы получить героя для своей линии.")
+
+# Асинхронная функция для получения героев по линии
+async def hero(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text("Для какой линии вам нужно выбрать героя? Напишите 'top', 'mid' или 'bot'.")
+
+# Функция для получения меты с API Stratz
 def get_meta_from_stratz():
     response = requests.get(STRATZ_API_URL, headers=headers)
     if response.status_code == 200:
@@ -40,31 +45,23 @@ def get_meta_from_stratz():
     else:
         return None
 
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text("Привет! Я помогу выбрать героя для Dota 2 по текущей мете.\n"
-                              "Введите команду /hero, чтобы получить героя для своей линии.")
-
-def hero(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text("Для какой линии вам нужно выбрать героя? Напишите 'top', 'mid' или 'bot'.")
-
-def counterpick(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text("Введите имя героя противника на английском языке, и я предложу контрпик.")
-
-def line(update: Update, context: CallbackContext) -> None:
+# Функция для выбора линии
+async def line(update: Update, context: CallbackContext) -> None:
     meta = get_meta_from_stratz()
     if not meta:
-        update.message.reply_text("Не удалось получить актуальную мету.")
+        await update.message.reply_text("Не удалось получить актуальную мету.")
         return
     line_choice = update.message.text.lower().strip()
     if line_choice in meta:
         heroes = meta[line_choice]
         hero_list = "\n".join(heroes)
-        update.message.reply_text(f"Вот герои для линии {line_choice.capitalize()}:\n{hero_list}\n\n"
-                                  "Теперь напишите героя противника, чтобы я предложил контрпики.")
+        await update.message.reply_text(f"Вот герои для линии {line_choice.capitalize()}:\n{hero_list}\n\n"
+                                       "Теперь напишите героя противника, чтобы я предложил контрпики.")
     else:
-        update.message.reply_text("Я не понимаю эту линию. Напишите 'top', 'mid' или 'bot'.")
+        await update.message.reply_text("Я не понимаю эту линию. Напишите 'top', 'mid' или 'bot'.")
 
-def get_counterpick(update: Update, context: CallbackContext) -> None:
+# Функция для контрпиков
+async def get_counterpick(update: Update, context: CallbackContext) -> None:
     opponent_hero = update.message.text.strip()
     counterpicks = {
         "Anti-Mage": ["Legion Commander", "Axe", "Silencer"],
@@ -75,12 +72,11 @@ def get_counterpick(update: Update, context: CallbackContext) -> None:
     if opponent_hero in counterpicks:
         counters = counterpicks[opponent_hero]
         counter_list = "\n".join(counters)
-        update.message.reply_text(f"Контрпики для {opponent_hero}:\n{counter_list}")
+        await update.message.reply_text(f"Контрпики для {opponent_hero}:\n{counter_list}")
     else:
-        update.message.reply_text(f"Извините, у меня нет информации о контрпиках для {opponent_hero}.")
+        await update.message.reply_text(f"Извините, у меня нет информации о контрпиках для {opponent_hero}.")
 
-# Функция для получения меты и другие обработчики
-
+# Основная функция
 def main() -> None:
     token = 'YOUR_BOT_API_TOKEN'  # Токен для бота
     application = Application.builder().token(token).build()
@@ -88,7 +84,8 @@ def main() -> None:
     # Добавляем обработчики команд
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("hero", hero))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hero))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, line))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, get_counterpick))
 
     # Запускаем бота
     application.run_polling()
