@@ -80,7 +80,7 @@ async def get_counterpick(update: Update, context: CallbackContext) -> None:
 
 # Основная функция
 def main() -> None:
-    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJTdWJqZWN0IjoiYjZhNjQ1NjEtNTgyZi00MTc1LTk3NjgtYjdmNjUxNGMwYWYzIiwiU3RlYW1JZCI6Ijc2MzUyOTU1IiwibmJmIjoxNzQzNDg5MTY2LCJleHAiOjE3NzUwMjUxNjYsImlhdCI6MTc0MzQ4OTE2NiwiaXNzIjoiaHR0cHM6Ly9hcGkuc3RyYXR6LmNvbSJ9.eg_iaj1BXJfRyv6dt4nFbWpEtEeseeOnElvtxcbZK50'  # Токен для бота
+    token = '8164777557:AAHLCs97peJ5C6mC2HegBxcTo8DN315aDP8'  # Токен для бота
     application = Application.builder().token(token).build()
 
     # Добавляем обработчики команд
