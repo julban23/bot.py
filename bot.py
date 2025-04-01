@@ -92,3 +92,24 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+def get_meta_from_stratz():
+    response = requests.get(STRATZ_API_URL, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        print("API Response:", data)  # Логируем ответ API
+        meta = {
+            "top": [],
+            "mid": [],
+            "bot": [],
+        }
+        for hero in data:
+            if hero['lane'] == "top":
+                meta["top"].append(hero['name'])
+            elif hero['lane'] == "mid":
+                meta["mid"].append(hero['name'])
+            elif hero['lane'] == "bottom":
+                meta["bot"].append(hero['name'])
+        return meta
+    else:
+        print(f"Ошибка при запросе: {response.status_code}")  # Логируем код ошибки
+        return None
