@@ -78,7 +78,7 @@ async def get_counterpick(update: Update, context: CallbackContext) -> None:
 
 # Основная функция
 def main() -> None:
-    token = 'YOUR_BOT_API_TOKEN'  # Токен для бота
+    token = '8164777557:AAHLCs97peJ5C6mC2HegBxcTo8DN315aDP8'  # Токен для бота
     application = Application.builder().token(token).build()
 
     # Добавляем обработчики команд
