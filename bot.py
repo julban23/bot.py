@@ -29,6 +29,7 @@ def get_meta_from_stratz():
     response = requests.get(STRATZ_API_URL, headers=headers)
     if response.status_code == 200:
         data = response.json()
+        print("API Response:", data)  # Логируем ответ API
         meta = {
             "top": [],
             "mid": [],
@@ -43,6 +44,7 @@ def get_meta_from_stratz():
                 meta["bot"].append(hero['name'])
         return meta
     else:
+        print(f"Ошибка при запросе: {response.status_code}")  # Логируем код ошибки
         return None
 
 # Функция для выбора линии
@@ -78,7 +80,7 @@ async def get_counterpick(update: Update, context: CallbackContext) -> None:
 
 # Основная функция
 def main() -> None:
-    token = '8164777557:AAHLCs97peJ5C6mC2HegBxcTo8DN315aDP8'  # Токен для бота
+    token = 'YOUR_BOT_API_TOKEN'  # Токен для бота
     application = Application.builder().token(token).build()
 
     # Добавляем обработчики команд
@@ -92,24 +94,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-def get_meta_from_stratz():
-    response = requests.get(STRATZ_API_URL, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        print("API Response:", data)  # Логируем ответ API
-        meta = {
-            "top": [],
-            "mid": [],
-            "bot": [],
-        }
-        for hero in data:
-            if hero['lane'] == "top":
-                meta["top"].append(hero['name'])
-            elif hero['lane'] == "mid":
-                meta["mid"].append(hero['name'])
-            elif hero['lane'] == "bottom":
-                meta["bot"].append(hero['name'])
-        return meta
-    else:
-        print(f"Ошибка при запросе: {response.status_code}")  # Логируем код ошибки
-        return None
